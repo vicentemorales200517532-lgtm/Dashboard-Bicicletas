@@ -106,15 +106,139 @@ else:
     # R2: Crear pestañas
     # --------------------------------
 
-    tab1, tab2 = st.tabs(["Gráfico diario", "Datos"])
+  
+# --------------------------------
+# R4: Indicadores
+# --------------------------------
 
-    with tab1:
-        st.subheader("Gráfico diario")
+# Crear una columna con el tipo de alquiler seleccionado
+datos_filtrados = datos_filtrados.copy()
+datos_filtrados["alquileres"] = datos_filtrados[columna]
 
-        st.info("Aquí construiremos el gráfico de alquileres diarios.")
+# Calcular indicadores
+total_alquileres = datos_filtrados["alquileres"].sum()
+promedio_alquileres = datos_filtrados["alquileres"].mean()
 
-    with tab2:
-        st.subheader("Datos")
+# Mostrar indicadores
+st.subheader("Indicadores generales")
 
-        st.info("Aquí construiremos la tabla y descarga CSV.")
+col1, col2 = st.columns(2)
 
+with col1:
+    st.metric(
+        "Total de alquileres",
+        f"{total_alquileres:,.0f}"
+    )
+
+with col2:
+    st.metric(
+        "Promedio por hora observada",
+        f"{promedio_alquileres:.1f}"
+    )
+
+# --------------------------------
+# R2: Crear pestañas
+# --------------------------------
+
+
+# --------------------------------
+# R4: Indicadores
+# --------------------------------
+
+# Crear una columna con el tipo de alquiler seleccionado
+datos_filtrados = datos_filtrados.copy()
+datos_filtrados["alquileres"] = datos_filtrados[columna]
+
+# Calcular indicadores
+total_alquileres = datos_filtrados["alquileres"].sum()
+promedio_alquileres = datos_filtrados["alquileres"].mean()
+
+# Mostrar indicadores
+st.subheader("Indicadores generales")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric(
+        "Total de alquileres",
+        f"{total_alquileres:,.0f}"
+    )
+
+with col2:
+    st.metric(
+        "Promedio por hora observada",
+        f"{promedio_alquileres:.1f}"
+    )
+
+# --------------------------------
+# R2: Crear pestañas
+# --------------------------------
+
+tab1, tab2 = st.tabs(["Gráfico diario", "Datos"])
+
+with tab1:
+
+    st.subheader("Alquileres diarios")
+
+    # Agrupar los alquileres por fecha
+    grafico_diario = datos_filtrados.groupby(
+        "fecha"
+    )["alquileres"].sum().reset_index()
+
+    # Ordenar por fecha
+    grafico_diario = grafico_diario.sort_values("fecha")
+
+    # Crear gráfico de líneas
+    st.line_chart(
+        grafico_diario,
+        x="fecha",
+        y="alquileres",
+        x_label="Fecha",
+        y_label="Total de alquileres"
+    )
+
+
+with tab2:
+
+    st.subheader("Datos de alquileres")
+
+    # Mostrar tabla interactiva
+    st.dataframe(
+        datos_filtrados,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    # --------------------------------
+    # Descargar datos filtrados
+    # --------------------------------
+
+    # Convertir los datos a formato CSV
+    csv = datos_filtrados.to_csv(
+        index=False
+    ).encode("utf-8-sig")
+
+    st.download_button(
+        label="Descargar datos CSV",
+        data=csv,
+        file_name="bicicletas_filtradas.csv",
+        mime="text/csv"
+    )
+
+    # --------------------------------
+    # Fuente de los datos
+    # --------------------------------
+
+    st.subheader("Fuente de los datos")
+
+    st.write(
+        "Fanaee-T, H. (2013). Bike Sharing "
+        "[Conjunto de datos]. UCI Machine Learning Repository."
+    )
+
+    st.write("DOI: 10.24432/C5W894. Licencia CC BY 4.0.")
+
+    st.link_button(
+        "Consultar fuente UCI",
+        "https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset"
+    )
